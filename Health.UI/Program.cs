@@ -1,10 +1,20 @@
 using Health.UI.Components;
+using Health.Data;
+using Health.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("BodyMetricLogs") ?? "Data Source=Fitness.db";
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSqlite<FitnessDB>(connectionString);
+
+builder.Services.AddScoped<IFitnessRepository, FitnessRepository>();
 
 var app = builder.Build();
 

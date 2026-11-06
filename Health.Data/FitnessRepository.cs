@@ -13,12 +13,18 @@ public class FitnessRepository : IFitnessRepository
     }
     public async Task DeleteBodyMetricLogAsync(BodyMetricLog bodyMetricLog)
     {
-        throw new NotImplementedException();
+        var existingLog = await _db.BodyMetricLogs.FindAsync(bodyMetricLog.Id);
+
+        if(existingLog != null)
+        {
+            _db.BodyMetricLogs.Remove(existingLog);
+            await _db.SaveChangesAsync();
+        }
     }
 
     public async Task<BodyMetricLog?> GetBodyMetricLogByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _db.BodyMetricLogs.FindAsync(id);
     }
 
     public async Task<List<BodyMetricLog>> GetFullBodyMetricLogListAsync()

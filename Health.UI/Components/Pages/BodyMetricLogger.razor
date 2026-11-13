@@ -1,0 +1,106 @@
+﻿@page "/body-metric-logger"
+
+@using Health.Core.Interfaces
+@using Health.Core.Models
+@using Health.Data
+
+@rendermode InteractiveServer
+
+@inject IFitnessRepository FitnessRepository
+
+<PageTitle>Body Metric Logger</PageTitle>
+
+<h1>Log Body Measurements</h1>
+
+<label>Weight:</label>
+<input class="form-control" type="number" @bind="weight" />
+<br />
+
+<label>Narrow Waist:</label>
+<input class="form-control" type="number" @bind="waistNarrow" />
+<br />
+
+<label>Naval Waist:</label>
+<input class="form-control" type="number" @bind="waistNaval" />
+<br />
+
+<label>Hips:</label>
+<input class="form-control" type="number" @bind="hips" />
+<br />
+
+<label>Chest:</label>
+<input class="form-control" type="number" @bind="chest" />
+<br />
+
+<label>Shoulders:</label>
+<input class="form-control" type="number" @bind="shoulders" />
+<br />
+
+<label>Biceps:</label>
+<input class="form-control" type="number" @bind="biceps" />
+<br />
+
+<label>Forearms:</label>
+<input class="form-control" type="number" @bind="forearms" />
+<br />
+
+<label>Thighs:</label>
+<input class="form-control" type="number" @bind="thighs" />
+<br />
+
+<label>Calves:</label>
+<input class="form-control" type="number" @bind="calves" />
+<br />
+
+<button class="btn btn-primary" @onclick="AddBodyMetric">Log Body Measurements</button>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+    <div class="alert @(isError ? "alert-danger" : "alert-success") mt-3" role="alert">@statusMessage</div>
+}
+
+@code {
+    private string? statusMessage;
+    private bool isError;
+    decimal weight;
+    decimal waistNarrow;
+    decimal waistNaval;
+    decimal hips;
+    decimal chest;
+    decimal shoulders;
+    decimal biceps;
+    decimal forearms;
+    decimal thighs;
+    decimal calves;
+
+    private async Task AddBodyMetric()
+    {
+        try
+        {
+
+            BodyMetricLog newLog = new BodyMetricLog
+                {
+                    Weight = weight,
+                    WaistNarrow = waistNarrow,
+                    WaistNavel = waistNaval,
+                    Hips = hips,
+                    Chest = chest,
+                    Shoulders = shoulders,
+                    Biceps = biceps,
+                    Forearms = forearms,
+                    Thighs = thighs,
+                    Calves = calves
+                };
+
+            await FitnessRepository.SaveBodyMetricLogAsync(newLog);
+
+            isError = false;
+            statusMessage = "Body Measurments successfully logged";
+        }
+        catch(Exception ex)
+        {
+            isError = true;
+            statusMessage = $"Error saving measurments: {ex.Message}";
+        }
+    }
+}

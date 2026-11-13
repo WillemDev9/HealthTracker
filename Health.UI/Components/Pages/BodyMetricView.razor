@@ -1,0 +1,49 @@
+@page "/body-metric-view"
+
+@using Health.Core.Interfaces
+@using Health.Core.Models
+@using Health.Data
+
+
+@rendermode InteractiveServer
+
+@inject IFitnessRepository FitnessRepository
+
+<PageTitle>Body Metric View</PageTitle>
+
+<h1>Body Metrics</h1>
+
+@if (fullBodyMetricList == null)
+{
+    <p><em>Loading Logs...</em></p>
+}
+else if(!fullBodyMetricList.Any())
+{
+    <p>There are no logs to display</p>
+}
+else
+{
+    <BodyMetricTable BodyMetrics="fullBodyMetricList" OnDeleteClicked="DeleteLog" />
+}
+
+@code
+{
+    List<BodyMetricLog>? fullBodyMetricList;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await RefreshBodyMetricList(); 
+    }
+
+    private async Task RefreshBodyMetricList()
+    {
+        fullBodyMetricList = await FitnessRepository.GetFullBodyMetricLogListAsync();
+    }
+
+    public async Task DeleteLog(BodyMetricLog log)
+    {
+        await FitnessRepository.DeleteBodyMetricLogAsync(log);
+        await RefreshBodyMetricList();
+    }
+}

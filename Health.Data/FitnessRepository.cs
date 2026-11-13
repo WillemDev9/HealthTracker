@@ -1,5 +1,6 @@
 ﻿using Health.Core.Interfaces;
 using Health.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Health.Data;
 
@@ -29,11 +30,23 @@ public class FitnessRepository : IFitnessRepository
 
     public async Task<List<BodyMetricLog>> GetFullBodyMetricLogListAsync()
     {
-        throw new NotImplementedException();
+        return await _db.BodyMetricLogs.OrderBy(l => l.Date).ToListAsync();
     }
 
     public async Task SaveBodyMetricLogAsync(BodyMetricLog bodyMetricLog)
     {
-        throw new NotImplementedException();
+
+        bool idExists = await _db.BodyMetricLogs.AnyAsync(g =>g.Id == bodyMetricLog.Id);
+
+        if(!idExists)
+        {
+            await _db.BodyMetricLogs.AddAsync(bodyMetricLog);
+        }
+        else
+        {
+            _db.BodyMetricLogs.Update(bodyMetricLog);
+        }
+        
+        await _db.SaveChangesAsync();
     }
 }

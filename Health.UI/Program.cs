@@ -6,17 +6,27 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("BodyMetricLogs") ?? "Data Source=Fitness.db";
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSqlite<FitnessDB>(connectionString);
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "Fitness.db");
+builder.Services.AddDbContext<FitnessDB>(options => options.UseSqlite($"Data Source={dbPath}"));
 
 builder.Services.AddScoped<IFitnessRepository, FitnessRepository>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FitnessDB>();
+    db.Database.EnsureCreated();
+
+    if(!db.BodyMetricLogs.Any())
+    {
+        await BodyMetricCSVImporter.ImportBodyMetricHistory(db, app.Environment.ContentRootPath);
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
